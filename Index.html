@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Free basketball training plans: drills, court diagrams and gym workouts for players U14 to adult. Built by a licensed coach.">
+<meta property="og:title" content="HoopsandWeights Trainer">
+<meta property="og:description" content="Your personal basketball and gym plan. Drills, court diagrams and workouts for every level.">
+<meta name="theme-color" content="#D9581A">
+<title>HoopsandWeights Trainer</title>
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+body { margin: 0; font: 14px system-ui, -apple-system, "Segoe UI", sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Layout: phone-first single column app, sticky top bar, fixed bottom tab bar; court diagrams drawn as SVG from drill data */
+:root {
+  --bg: #EEF1F4;
+  --surface: #FFFFFF;
+  --surface-2: #E3E8ED;
+  --fg: #16202B;
+  --muted: #5B6875;
+  --line: #C9D2DB;
+  --court: #F6E7D3;
+  --court-line: #B9865A;
+  --accent: #D9581A;
+  --accent-ink: #FFFFFF;
+  --ok: #1F8A5B;
+  --ok-soft: #DDF1E7;
+  --warn: #9A6400;
+  --warn-soft: #F7EACB;
+  --f-display: "Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-label: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --r: 14px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1419; --surface: #19202A; --surface-2: #232C38; --fg: #ECEFF3; --muted: #95A2B0;
+    --line: #2F3A47; --court: #2A2219; --court-line: #9C7552; --accent: #F0763A; --accent-ink: #1A0E07;
+    --ok: #4CC48D; --ok-soft: #173326; --warn: #E8B44A; --warn-soft: #3A2E14; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1419; --surface: #19202A; --surface-2: #232C38; --fg: #ECEFF3; --muted: #95A2B0;
+  --line: #2F3A47; --court: #2A2219; --court-line: #9C7552; --accent: #F0763A; --accent-ink: #1A0E07;
+  --ok: #4CC48D; --ok-soft: #173326; --warn: #E8B44A; --warn-soft: #3A2E14; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.45; }
+.app { max-width: 560px; margin: 0 auto; padding-inline: 16px; padding-block: 0 110px; }
+
+header.top {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--bg); display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding-block: 14px 10px; border-bottom: 1px solid var(--line);
+}
+.brand { font-family: var(--f-display); font-weight: 900; font-size: 1.7rem; letter-spacing: .01em; line-height: 1; text-transform: uppercase; }
+.brand span { color: var(--accent); }
+.sub { font-family: var(--f-label); font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-top: 3px; }
+.hdr-right { display: flex; align-items: center; gap: 8px; }
+.langbtn { font-family: var(--f-label); font-weight: 700; font-size: .9rem; letter-spacing: .06em; padding: 6px 10px; border-radius: 999px;
+  border: 1.5px solid var(--accent); background: transparent; color: var(--accent); cursor: pointer; }
+.langbtn:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+@media (max-width: 420px) { #streakTxt { display: none; } }
+.streak { font-family: var(--f-label); font-weight: 700; font-size: .9rem; letter-spacing: .04em; text-transform: uppercase;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; white-space: nowrap; }
+.streak b { color: var(--accent); font-variant-numeric: tabular-nums; }
+
+h2 { font-family: var(--f-display); font-weight: 800; font-size: 2rem; line-height: 1; text-transform: uppercase; margin: 0; text-wrap: balance; }
+.eyebrow { font-family: var(--f-label); font-weight: 600; font-size: .8rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+section.view { display: flex; flex-direction: column; gap: 16px; padding-top: 20px; }
+
+.hero { display: flex; flex-direction: column; gap: 8px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--f-label); font-size: .95rem; color: var(--muted); letter-spacing: .03em; text-transform: uppercase; }
+.bar { height: 8px; background: var(--surface-2); border-radius: 999px; overflow: hidden; }
+.bar > i { display: block; height: 100%; width: 0; background: var(--accent); border-radius: 999px; transition: width .3s ease; }
+.done-banner { background: var(--ok-soft); color: var(--ok); border-radius: var(--r); padding: 12px 14px; font-weight: 600; }
+
+.drills { display: flex; flex-direction: column; gap: 10px; }
+.drill { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
+.drill.complete { border-color: var(--ok); }
+.drill-head { width: 100%; display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; align-items: center; text-align: left;
+  background: none; border: 0; color: inherit; font: inherit; padding: 14px; cursor: pointer; }
+.drill-head:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.drill-name { font-weight: 600; font-size: 1.05rem; min-width: 0; }
+.drill-dose { font-family: var(--f-label); color: var(--muted); font-size: .95rem; letter-spacing: .02em; }
+.count { font-family: var(--f-label); font-weight: 700; font-variant-numeric: tabular-nums; font-size: 1rem; color: var(--muted); grid-row: span 2; }
+.drill.complete .count { color: var(--ok); }
+.drill-body { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 12px; }
+.court { background: var(--court); border-radius: 10px; overflow: hidden; }
+.court svg { display: block; width: 100%; height: auto; }
+.cues { margin: 0; padding-left: 18px; color: var(--muted); display: flex; flex-direction: column; gap: 4px; }
+.sets { display: flex; flex-wrap: wrap; gap: 8px; }
+.set { min-width: 64px; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--fg);
+  font-family: var(--f-label); font-weight: 700; font-size: .95rem; letter-spacing: .04em; text-transform: uppercase; cursor: pointer; }
+.set[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.gymtable { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.gymtable td { padding: 6px 0; border-bottom: 1px solid var(--line); }
+.gymtable td:last-child { text-align: right; font-family: var(--f-label); font-weight: 600; }
+
+.chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.chip { flex: none; padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--fg);
+  font-family: var(--f-label); font-weight: 600; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.lib { display: flex; flex-direction: column; gap: 10px; }
+.wcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px; display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; align-items: center; }
+.wcard h3 { margin: 0; font-family: var(--f-display); font-weight: 800; font-size: 1.35rem; text-transform: uppercase; line-height: 1.05; }
+.wcard p { margin: 0; color: var(--muted); font-size: .95rem; grid-column: 1 / -1; }
+.tag { font-family: var(--f-label); font-weight: 700; font-size: .75rem; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); }
+.btn { padding: 10px 14px; border-radius: 10px; border: 0; background: var(--accent); color: var(--accent-ink); font-family: var(--f-label);
+  font-weight: 700; font-size: .95rem; letter-spacing: .05em; text-transform: uppercase; cursor: pointer; white-space: nowrap; }
+.btn.ghost { background: var(--surface-2); color: var(--fg); }
+
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; background: var(--surface-2); border-radius: 12px; padding: 4px; }
+.seg button { border: 0; background: none; color: var(--muted); padding: 10px; border-radius: 9px; cursor: pointer;
+  font-family: var(--f-label); font-weight: 700; letter-spacing: .06em; text-transform: uppercase; font-size: .95rem; }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--fg); }
+.seg b { font-variant-numeric: tabular-nums; color: var(--accent); margin-left: 4px; }
+.search { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); color: var(--fg); font: inherit; }
+.search::placeholder { color: var(--muted); }
+.search:focus-visible { outline: 3px solid var(--accent); outline-offset: 1px; }
+.dtag { font-family: var(--f-label); font-size: .85rem; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+.dtag em { font-style: normal; color: var(--accent); font-weight: 700; }
+/* Onboarding */
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.steps i { height: 5px; border-radius: 999px; background: var(--surface-2); }
+.steps i.on { background: var(--accent); }
+.q-help { margin: 0; color: var(--muted); }
+.opts { display: grid; gap: 10px; }
+.opts.two { grid-template-columns: 1fr 1fr; }
+.opt { text-align: left; padding: 16px; border-radius: var(--r); border: 1.5px solid var(--line); background: var(--surface); color: var(--fg);
+  font: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.opt strong { font-family: var(--f-display); font-weight: 800; font-size: 1.5rem; text-transform: uppercase; line-height: 1.05; }
+.opt span { color: var(--muted); font-size: .92rem; }
+.opt[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
+.opt[aria-pressed="true"] strong { color: var(--accent); }
+.nav-row { display: flex; gap: 10px; justify-content: space-between; }
+.nav-row .btn { flex: 1; padding: 14px; }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.profile { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface); border: 1px solid var(--line);
+  border-radius: var(--r); padding: 10px 12px; }
+.profile div { min-width: 0; font-family: var(--f-label); font-weight: 600; letter-spacing: .03em; text-transform: uppercase; font-size: .9rem; }
+.profile small { display: block; color: var(--muted); font-weight: 500; }
+.linkbtn { background: none; border: 0; color: var(--accent); font-family: var(--f-label); font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; cursor: pointer; padding: 6px; }
+.plan { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px; }
+.pday { flex: none; width: 128px; text-align: left; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface);
+  color: var(--fg); cursor: pointer; font: inherit; display: flex; flex-direction: column; gap: 2px; }
+.pday small { font-family: var(--f-label); font-weight: 700; letter-spacing: .1em; color: var(--muted); font-size: .75rem; }
+.pday span { font-weight: 600; font-size: .92rem; line-height: 1.2; }
+.pday[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.pday[aria-pressed="true"] small { color: inherit; opacity: .85; }
+.tip { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; font-size: .92rem; }
+.tip.warn { background: var(--warn-soft); color: var(--warn); }
+.opts.four { grid-template-columns: repeat(3, 1fr); }
+.opts.days { grid-template-columns: repeat(4, 1fr); }
+.opt.day-opt, .opt.count-opt { align-items: center; text-align: center; padding: 14px 6px; }
+.opt.count-opt { position: relative; padding-bottom: 26px; }
+.opt .rec { position: absolute; left: 6px; right: 6px; bottom: 6px; font-style: normal; font-family: var(--f-label); font-weight: 700; font-size: .68rem;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--ok); }
+.pday.team { cursor: default; background: transparent; border-style: dashed; color: var(--muted); }
+.foryou { color: var(--ok); }
+.lv { display: inline-block; padding: 1px 7px; border-radius: 999px; font-weight: 700; font-size: .72rem; letter-spacing: .08em; vertical-align: 1px; }
+.lv-B { background: var(--ok-soft); color: var(--ok); }
+.lv-I { background: var(--warn-soft); color: var(--warn); }
+.lv-A { background: var(--accent); color: var(--accent-ink); }
+.chip.sub { padding: 6px 12px; font-size: .85rem; }
+.chip.sub[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.empty { text-align: center; color: var(--muted); padding: 24px 0; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+.day { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 0; text-align: center; font-family: var(--f-label); font-weight: 600; }
+.day small { display: block; color: var(--muted); font-size: .75rem; letter-spacing: .08em; }
+.day.on { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.day.on small { color: inherit; opacity: .8; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px; }
+.stat b { display: block; font-family: var(--f-display); font-weight: 900; font-size: 2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { font-family: var(--f-label); color: var(--muted); font-size: .8rem; letter-spacing: .06em; text-transform: uppercase; }
+.note { font-size: .85rem; color: var(--muted); }
+.split { display: flex; flex-direction: column; gap: 8px; }
+.split-row { display: grid; grid-template-columns: 90px 1fr 38px; gap: 10px; align-items: center; font-family: var(--f-label); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; font-size: .9rem; }
+.split-row .bar { height: 10px; }
+.split-row em { font-style: normal; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 6; background: var(--surface); border-top: 1px solid var(--line);
+  padding: 8px 16px calc(8px + env(safe-area-inset-bottom, 0px)); }
+nav.tabs .inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+nav.tabs button { background: none; border: 0; color: var(--muted); padding: 10px 4px; border-radius: 10px; cursor: pointer;
+  font-family: var(--f-label); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; font-size: .95rem; }
+nav.tabs button[aria-selected="true"] { color: var(--fg); background: var(--surface-2); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="brand">Hoops<span>&amp;</span>Weights</div>
+      <div class="sub" id="subTxt">Solo trainer · prototype</div>
+    </div>
+    <div class="hdr-right">
+      <button class="langbtn" id="langBtn" data-lang="1" aria-label="Auf Deutsch umstellen">DE</button>
+      <div class="streak">🔥 <b id="streakNum">3</b> <span id="streakTxt">day streak</span></div>
+    </div>
+  </header>
+
+  <section class="view" id="view-start" hidden></section>
+  <section class="view" id="view-today"></section>
+  <section class="view" id="view-library" hidden></section>
+  <section class="view" id="view-progress" hidden></section>
+</div>
+
+<nav class="tabs" id="tabbar" aria-label="Sections">
+  <div class="inner" role="tablist">
+    <button role="tab" id="tab-today" aria-selected="true" data-tab="today">Today</button>
+    <button role="tab" id="tab-library" aria-selected="false" data-tab="library">Library</button>
+    <button role="tab" id="tab-progress" aria-selected="false" data-tab="progress">Progress</button>
+  </div>
+</nav>
+
+<script>
+// ---- Language: English is the source, German comes from these tables ----
+const DE = {"Low, fast handles into game-speed finishes. One ball, five cones.": "Tiefe, schnelle Dribblings bis zum Abschluss im Spieltempo. Ein Ball, fünf Hütchen.", "Ball below the knee": "Ball unter Kniehöhe", "Eyes up, call out a number": "Blick hoch, ruf eine Zahl laut", "Fingertips, not palm": "Fingerspitzen, nicht Handfläche", "Cone 1 crossover, cone 2 between the legs": "Hütchen 1 Crossover, Hütchen 2 durch die Beine", "Cone 3 behind the back, then attack": "Hütchen 3 hinter dem Rücken, dann angreifen", "Change speed out of every move": "Nach jeder Finte das Tempo wechseln", "Same height, same rhythm": "Gleiche Höhe, gleicher Rhythmus", "Then alternate: one up, one down": "Dann abwechselnd: einer oben, einer unten", "Never let the ball drop below the chin": "Ball nie unter Kinnhöhe fallen lassen", "Use the backboard both sides": "Brett auf beiden Seiten nutzen", "Builds the shot from the rim out, then adds the dribble.": "Baut den Wurf vom Korb aus auf, dann kommt das Dribbling dazu.", "One hand first, guide hand off": "Erst einhändig, Führungshand weg", "Hold the follow-through": "Follow-through halten", "Hands ready before the catch": "Hände bereit vor dem Fangen", "Hop or 1-2 step, pick one and own it": "Hop oder 1-2-Step, entscheide dich für einen", "Hard dribble, sit into the stop": "Harter Dribbel, tief in den Stopp", "Shoulders square at the top": "Schultern oben gerade zum Korb", "Same routine every shot": "Jeder Wurf mit derselben Routine", "Track makes out of 10": "Treffer von 10 notieren", "Footwork and touch around the rim, both hands.": "Fußarbeit und Gefühl am Korb, mit beiden Händen.", "Long first step, sell the direction": "Langer erster Schritt, Richtung verkaufen", "Protect the ball high": "Ball hoch schützen", "Use the rim as a shield": "Ring als Schutzschild nutzen", "Spin off the glass high": "Hoch und mit Effet ans Brett", "Release off one foot from the lane": "Absprung von einem Bein in der Zone", "High arc, soft touch": "Hoher Bogen, weiche Hand", "Stance, slides and closeouts. Legs will burn, that's the point.": "Stance, Slides und Closeouts. Die Beine brennen, genau darum geht's.", "Feet wider than shoulders, hips low": "Füße breiter als Schultern, Hüfte tief", "Hands active, weight on the balls of your feet": "Hände aktiv, Gewicht auf den Fußballen", "Push off the trail foot, don't click heels": "Vom hinteren Fuß abdrücken, Fersen nicht zusammen", "Stay low, head level the whole way": "Tief bleiben, Kopf auf gleicher Höhe", "Drop step at every cone": "Drop-Step an jedem Hütchen", "Turn the hips, not just the feet": "Hüfte drehen, nicht nur die Füße", "Sprint 2/3 of the way, chop the last steps": "2/3 sprinten, letzte Schritte trippeln", "High hand to the shooter's eyes": "Hohe Hand vor die Augen des Schützen", "3 slides, then turn and sprint to the cone": "3 Slides, dann drehen und zum Hütchen sprinten", "Explode out of the turn": "Explosiv aus der Drehung", "Strength and bounce. Keep 2 reps in the tank on every set.": "Kraft und Sprungkraft. Bei jedem Satz 2 Wiederholungen im Tank lassen.", "Depth before load": "Erst Tiefe, dann Gewicht", "Rest": "Pause", "2 min": "2 Min.", "Tempo": "Tempo", "Controlled down, fast up": "Langsam runter, schnell hoch", "Front knee tracks over toes": "Vorderes Knie über den Zehen", "90 sec": "90 Sek.", "Hips back, flat back": "Hüfte nach hinten, gerader Rücken", "Feel the hamstrings stretch": "Dehnung im hinteren Oberschenkel spüren", "Step down, don't jump down": "Runtersteigen, nicht runterspringen", "Full recovery": "Volle Erholung", "Focus": "Fokus", "Land soft and quiet": "Leise und weich landen", "Pause at the top": "Oben kurz halten", "60 sec": "60 Sek.", "Jump higher, move quicker. Quality over quantity, full rest between sets.": "Höher springen, schneller bewegen. Qualität vor Menge, volle Pause zwischen den Sätzen.", "Stiff ankles, quick ground contact": "Feste Sprunggelenke, kurzer Bodenkontakt", "Big arm swing": "Großer Armschwung", "Stick the landing": "Landung halten", "Push off the outside leg": "Vom äußeren Bein abdrücken", "Hold the landing 1 sec": "Landung 1 Sek. halten", "Knee stays in line": "Knie bleibt in Linie", "Stop if form breaks": "Aufhören, wenn die Technik nachlässt", "Step off, land, jump instantly": "Runtersteigen, landen, sofort springen", "Only with solid jump experience": "Nur mit solider Sprungerfahrung", "Box": "Box", "30–40 cm": "30–40 cm", "Absorb contact, finish through it.": "Kontakt abfangen, durch ihn hindurch abschließen.", "Full range, chest to fist height": "Volle Bewegung, Brust bis auf Fausthöhe", "Shoulder blades pinned back": "Schulterblätter nach hinten gezogen", "Pull the elbow to the hip": "Ellbogen zur Hüfte ziehen", "Full hang to chin over bar": "Komplett hängen bis Kinn über der Stange", "Easier": "Leichter", "Band-assisted": "Mit Band", "Full extension, then slam": "Komplett strecken, dann knallen", "Don't let the band rotate you": "Nicht vom Band drehen lassen", "45 sec": "45 Sek.", "Squeeze glutes, ribs down": "Po anspannen, Rippen runter", "Healthy shoulders, strong hands. Helps with contact and ball security.": "Gesunde Schultern, starke Hände. Hilft bei Kontakt und Ballsicherheit.", "Ribs down, no arching": "Rippen runter, kein Hohlkreuz", "Lead with the elbows": "Mit den Ellbogen führen", "Light weight, slow down": "Leichtes Gewicht, langsam", "Pull to the forehead, thumbs back": "Zur Stirn ziehen, Daumen nach hinten", "No swinging": "Nicht schwingen", "Elbows back, not out": "Ellbogen nach hinten, nicht nach außen", "Tall posture, tight grip": "Aufrecht, fester Griff", "Eyes up the whole time": "Blick die ganze Zeit hoch", "Stay low in your stance": "Tief in der Grundstellung bleiben", "Keep the ball close to your legs": "Ball nah an den Beinen halten", "Cross low and quick": "Tief und schnell kreuzen", "Change hands below the knee": "Hand unter Kniehöhe wechseln", "Front-front-back-back rhythm": "Rhythmus vorne-vorne-hinten-hinten", "Stay on your fingertips": "Auf den Fingerspitzen bleiben", "Two hard retreat dribbles": "Zwei harte Rückwärts-Dribblings", "Attack on the change of speed": "Beim Tempowechsel angreifen", "Sell the in-and-out with your shoulders": "In-and-out mit den Schultern verkaufen", "Explode out of the cross": "Explosiv aus dem Crossover", "Cross both balls at the same time": "Beide Bälle gleichzeitig kreuzen", "Keep both at the same height": "Beide auf gleicher Höhe halten", "Toss with the free hand, catch it every time": "Mit der freien Hand werfen und jedes Mal fangen", "Never look down at the ball": "Nie auf den Ball schauen", "Hard drive, then snatch back": "Harter Drive, dann Snatch-back", "Feet under you before you rise": "Füße unter dem Körper, bevor du hochgehst", "3 different moves per trip at game speed": "3 verschiedene Moves pro Durchgang im Spieltempo", "Finish every trip with a layup": "Jeden Durchgang mit einem Layup abschließen", "Elbow under the ball": "Ellbogen unter dem Ball", "Write down your makes": "Treffer aufschreiben", "Aim for the top corner of the square": "Obere Ecke des Quadrats anvisieren", "Square up to the glass": "Gerade zum Brett stellen", "Catch on the hop": "Fangen mit Hop", "Same release point every rep": "Jedes Mal gleicher Abwurfpunkt", "7 spots, 2 makes to move on": "7 Spots, 2 Treffer zum Weiterrücken", "Feet set before every shot": "Füße stehen vor jedem Wurf", "Hard dribble into a 1-2 stop": "Harter Dribbel in einen 1-2-Stopp", "Rise straight up, land in place": "Gerade hoch, an derselben Stelle landen", "Push off the front foot": "Vom vorderen Fuß abdrücken", "Land balanced, no drifting": "Ausbalanciert landen, nicht abdriften", "Shoot, sprint to a new spot, catch and shoot": "Werfen, zu neuem Spot sprinten, fangen und werfen", "No rest between shots": "Keine Pause zwischen den Würfen", "Use a chair as the screen, come off tight": "Stuhl als Block nutzen, eng daran vorbei", "Shoulders square on the rise": "Schultern beim Hochgehen gerade", "Baseline sprint, then 2 free throws": "Sprint zur Grundlinie, dann 2 Freiwürfe", "Track makes on tired legs": "Treffer mit müden Beinen notieren", "Right hand on the right, left hand on the left": "Rechte Hand rechts, linke Hand links", "Drive the knee up on the jump": "Knie beim Absprung hochziehen", "Two-foot jump stop": "Beidbeiniger Jump-Stop", "Protect the ball with your body": "Ball mit dem Körper schützen", "Use the glass": "Brett nutzen", "Jump straight up, not forward": "Gerade hoch springen, nicht nach vorne", "Reverse layups right under the rim": "Reverse Layups direkt unter dem Korb", "Finish with the hand closest to the middle": "Mit der Hand abschließen, die näher zur Mitte ist", "Keep the ball away from the shot blocker": "Ball vom Blocker weghalten", "Gather, hop to two feet": "Ball aufnehmen, auf beide Füße hüpfen", "Go up strong and balanced": "Stark und ausbalanciert hochgehen", "Spin off the defender's hip": "Über die Hüfte des Verteidigers drehen", "Keep the ball tight to your body": "Ball eng am Körper halten", "Partner bumps you with a pad on the way up": "Partner rempelt dich mit einem Pad beim Hochgehen", "Absorb the bump, then finish high": "Rempler abfangen, dann hoch abschließen", "Sell the shot fake": "Wurftäuschung verkaufen", "Step through low and quick": "Tief und schnell durchsteigen", "Euro step, finish on the far side of the rim": "Euro-Step, auf der anderen Korbseite abschließen", "Control your body in the air": "Körper in der Luft kontrollieren", "Hips low, back flat": "Hüfte tief, Rücken gerade", "Hands up and active": "Hände hoch und aktiv", "Push off, don't hop": "Abdrücken, nicht hüpfen", "Stay at the same height": "Auf gleicher Höhe bleiben", "Open the hip on the drop step": "Hüfte beim Drop-Step öffnen", "Slide right after the drop": "Direkt nach dem Drop sliden", "Touch the cone with the outside hand": "Hütchen mit der äußeren Hand berühren", "Stay low the whole time": "Die ganze Zeit tief bleiben", "Partner moves, you mirror": "Partner bewegt sich, du spiegelst", "Never cross your feet": "Nie die Füße kreuzen", "Chop your feet, then slide to cut off the drive": "Füße trippeln, dann sliden und den Drive abschneiden", "Hand high on the closeout": "Hohe Hand beim Closeout", "Turn the ball handler 3 times per trip": "Ballführer 3× pro Durchgang umdrehen", "Beat them to the spot": "Vor ihm am Spot sein", "Partner points, you react instantly": "Partner zeigt, du reagierst sofort", "Jump to the ball on every pass": "Bei jedem Pass zum Ball springen", "Beat the driver to the spot, chest square": "Vor dem Angreifer am Spot sein, Brust gerade", "Fall back safely, chin tucked": "Sicher nach hinten fallen, Kinn auf die Brust", "Find, hit, hold": "Finden, blocken, halten", "Chase the ball after contact": "Nach dem Kontakt dem Ball nachgehen", "Small, quick jumps": "Kleine, schnelle Sprünge", "Stay on the balls of your feet": "Auf den Fußballen bleiben", "Sit back, then explode up": "Nach hinten setzen, dann explosiv hoch", "Quick hops over a line": "Schnelle Sprünge über eine Linie", "Minimal ground contact": "Minimaler Bodenkontakt", "Knees to chest at the top": "Knie oben zur Brust", "Reset between reps if needed": "Bei Bedarf zwischen den Wiederholungen neu ansetzen", "Stick each landing for 1 sec": "Jede Landung 1 Sek. halten", "Switch legs in the air": "Beine in der Luft wechseln", "Back knee stays off the floor": "Hinteres Knie berührt den Boden nicht", "Step off the box, land, jump forward instantly": "Von der Box steigen, landen, sofort nach vorne springen", "Continuous jumps, short ground contact": "Durchgehende Sprünge, kurzer Bodenkontakt", "Knees drive up over each hurdle": "Knie über jede Hürde hochziehen", "Low box to start": "Mit niedriger Box anfangen", "Land on the same leg, knee in line": "Auf demselben Bein landen, Knie in Linie", "Game-like 2-step approach": "Spielnaher 2-Schritt-Anlauf", "Full rest, every rep at 100%": "Volle Pause, jede Wiederholung mit 100 %", "Elbows inside the knees": "Ellbogen innerhalb der Knie", "Chest up": "Brust raus", "Long step, upright torso": "Langer Schritt, aufrechter Oberkörper", "Back knee almost touches the floor": "Hinteres Knie berührt fast den Boden", "Squeeze glutes at the top": "Po oben anspannen", "Ribs down": "Rippen runter", "Elbows high": "Ellbogen hoch", "Stay upright, full depth": "Aufrecht bleiben, volle Tiefe", "Drive through the front heel": "Über die vordere Ferse drücken", "Don't push off the back foot": "Nicht mit dem hinteren Fuß abdrücken", "Hips square to the floor": "Hüfte parallel zum Boden", "Slow on the way down": "Langsam nach unten", "Push the floor away": "Den Boden wegdrücken", "Neutral spine": "Neutrale Wirbelsäule", "Lower as slow as you can": "So langsam wie möglich absenken", "Use your hands to catch yourself": "Mit den Händen abfangen", "Rear foot elevated on a bench": "Hinterer Fuß erhöht auf einer Bank", "Front knee tracks over the toes": "Vorderes Knie über den Zehen", "Jump and shrug, fast elbows": "Springen und Schultern hochziehen, schnelle Ellbogen", "Learn it with a coach first": "Erst mit einem Coach lernen", "Hands on a bench": "Hände auf einer Bank", "Body in one straight line": "Körper in einer geraden Linie", "Elbows about 45° from the body": "Ellbogen etwa 45° vom Körper", "Full range of motion": "Volle Bewegungsamplitude", "Pause when elbows touch the floor": "Pause, wenn die Ellbogen den Boden berühren", "Press straight up": "Gerade nach oben drücken", "Control the lowering": "Absenken kontrollieren", "Plate on the upper back or a vest": "Hantelscheibe auf dem oberen Rücken oder Weste", "Keep the core tight": "Rumpf fest anspannen", "Bench at about 30°": "Bank auf etwa 30°", "Don't flare the elbows": "Ellbogen nicht abspreizen", "Feet planted, slight arch": "Füße fest am Boden, leichtes Hohlkreuz", "Bar to mid-chest": "Stange zur Brustmitte", "Hands on plates for extra depth": "Hände auf Scheiben für mehr Tiefe", "Explode so the hands leave the floor": "Explosiv, sodass die Hände abheben", "Land soft, reset": "Weich landen, neu ansetzen", "Slight forward lean": "Leicht nach vorne lehnen", "Only go as deep as your shoulders allow": "Nur so tief, wie es die Schultern erlauben", "Arms straight": "Arme gestreckt", "Squeeze the shoulder blades": "Schulterblätter zusammendrücken", "Body straight under a bar or table": "Körper gerade unter einer Stange oder einem Tisch", "Chest to the bar": "Brust zur Stange", "Lift arms and legs together": "Arme und Beine gleichzeitig heben", "Look at the floor": "Auf den Boden schauen", "Pull the bar to the upper chest": "Stange zur oberen Brust ziehen", "No leaning back": "Nicht nach hinten lehnen", "Elbow to the hip": "Ellbogen zur Hüfte", "Flat back": "Gerader Rücken", "Full hang at the bottom": "Unten komplett hängen", "Chin over the bar": "Kinn über die Stange", "Dip belt or a dumbbell between the feet": "Dip-Gürtel oder Kurzhantel zwischen den Füßen", "No kipping": "Kein Schwung", "Hinge to about 45°": "Auf etwa 45° nach vorne beugen", "Pull to the belly button": "Zum Bauchnabel ziehen", "Push-up position, row one dumbbell": "Liegestützposition, eine Hantel rudern", "Hips stay level": "Hüfte bleibt gerade", "Chest on an incline bench": "Brust auf einer Schrägbank", "Elbow pinned to your side": "Ellbogen eng am Körper", "Slow and controlled": "Langsam und kontrolliert", "Stop at shoulder height": "Auf Schulterhöhe stoppen", "Back and arms flat on the wall": "Rücken und Arme flach an der Wand", "Slide up without arching": "Hochgleiten ohne Hohlkreuz", "Rotate the palms on the way up": "Handflächen beim Hochdrücken drehen", "Lie face down on an incline bench": "Bäuchlings auf eine Schrägbank legen", "Very light weight": "Sehr leichtes Gewicht", "Back against the bench": "Rücken an der Bank", "Press straight overhead": "Gerade über Kopf drücken", "Short dip, drive with the legs": "Kurz einknicken, mit den Beinen antreiben", "Lock out overhead": "Über Kopf durchstrecken", "Press up and slightly forward": "Nach oben und leicht nach vorne drücken", "Brace the core": "Rumpf anspannen", "Stomach facing the wall": "Bauch zur Wand", "Kettlebell upside down": "Kettlebell kopfüber", "Squeeze the handle hard": "Griff fest zusammendrücken", "Elbows stay by your sides": "Ellbogen bleiben am Körper", "Squeeze at the top": "Oben anspannen", "Hands on a bench behind you": "Hände auf einer Bank hinter dir", "Elbows point back": "Ellbogen zeigen nach hinten", "Forearms on your thighs": "Unterarme auf den Oberschenkeln", "Full range": "Volle Bewegung", "Thumbs up": "Daumen nach oben", "Elbows point forward": "Ellbogen zeigen nach vorne", "Full stretch at the bottom": "Unten voll dehnen", "Pinch two plates together": "Zwei Scheiben zusammenkneifen", "Builds ball security": "Stärkt die Ballsicherheit", "Palms facing you": "Handflächen zu dir", "Control the way down": "Abwärts kontrollieren", "Hands shoulder-width": "Hände schulterbreit", "Elbows close to the body": "Ellbogen nah am Körper", "Hang from two towels over the bar": "An zwei Handtüchern über der Stange hängen", "Huge grip strength builder": "Baut enorme Griffkraft auf", "Thick handles or towels around the grip": "Dicke Griffe oder Handtücher um den Griff", "Tall posture": "Aufrechte Haltung", "Lower back pressed into the floor": "Unterer Rücken an den Boden gedrückt", "Move slowly": "Langsam bewegen", "Hips high": "Hüfte hoch", "Body in one line": "Körper in einer Linie", "Opposite arm and leg": "Gegenüberliegender Arm und Bein", "No rotation in the hips": "Keine Drehung in der Hüfte", "Lower back flat on the floor": "Unterer Rücken flach am Boden", "Arms and legs low": "Arme und Beine tief", "Rotate from the chest": "Aus der Brust drehen", "Feet down if needed": "Füße bei Bedarf am Boden", "Knees an inch off the floor": "Knie ein paar Zentimeter über dem Boden", "Curl the hips up": "Hüfte einrollen", "Only as far as you can hold a flat back": "Nur so weit, wie der Rücken gerade bleibt", "Pull back with the abs": "Mit den Bauchmuskeln zurückziehen", "Top leg on a bench": "Oberes Bein auf einer Bank", "Great for groin strength": "Super für die Leistenkraft", "Throw against a wall with full hip turn": "Mit voller Hüftdrehung gegen die Wand werfen", "Like a hard skip pass": "Wie ein harter Skip-Pass", "Built for your level: clean basics, good habits.": "Passend zu deinem Level: saubere Basics, gute Gewohnheiten.", "One easier warm-up drill, then three at your level.": "Eine leichtere Aufwärmübung, dann drei auf deinem Level.", "One warm-up drill, then advanced work at game speed.": "Eine Aufwärmübung, dann Advanced-Arbeit im Spieltempo."};
+const UI_LV = { Beginner: "Anfänger", Intermediate: "Fortgeschritten", Advanced: "Profi" };
+const UI_CAT = { Handles: "Ballhandling", Shooting: "Wurf", Finishing: "Abschluss", Defense: "Verteidigung", Gym: "Gym",
+  Plyo: "Plyo", Legs: "Beine", Chest: "Brust", Back: "Rücken", Shoulders: "Schultern", Arms: "Arme", Core: "Rumpf", All: "Alle", Level: "Level" };
+const UI_DAY = { Mon: "Mo", Tue: "Di", Wed: "Mi", Thu: "Do", Fri: "Fr", Sat: "Sa", Sun: "So" };
+const isDE = () => { try { return state.lang === "de"; } catch (e) { return false; } };
+const L = (en, de) => isDE() ? de : en;
+const tr = (s) => isDE() && DE[s] ? DE[s] : s;
+const lv = (s) => isDE() ? (UI_LV[s] || s) : s;
+const cat = (s) => isDE() ? (UI_CAT[s] || s) : s;
+const dy = (s) => isDE() ? (UI_DAY[s] || s) : s;
+const cell = (s) => lv(cat(tr(s)));
+const nm = (s) => isDE() ? s.replace(/(Beginner|Intermediate|Advanced)/, (m) => UI_LV[m]) : s;
+function dose(s) {
+  if (!isDE()) return s;
+  return s.replace(/\bsec\b/g, "Sek.").replace("each hand", "pro Hand").replace(/(each|per) side/, "pro Seite")
+    .replace(/(each|per) leg/, "pro Bein").replace(/(each|per) arm/, "pro Arm").replace("each letter", "pro Buchstabe")
+    .replace("sets", "Sätze").replace("makes", "Treffer").replace("shots", "Würfe").replace("trips", "Durchgänge")
+    .replace("rounds", "Runden").replace("reps", "Wdh.").replace("court length", "Feldlänge").replace("full court", "ganzes Feld")
+    .replace("tired legs", "müde Beine").replace("after sprints", "nach Sprints");
+}
+// Court coordinates: viewBox 0 0 200 130, baseline at top, hoop at (100,16)
+const W = [
+  { id: "handles", cat: "Handles", name: "Cone Attack Session", min: 40, level: "U16+",
+    blurb: "Low, fast handles into game-speed finishes. One ball, five cones.",
+    drills: [
+      { id: "h1", name: "Pound series", dose: "3 × 30 sec each hand", sets: 3,
+        cues: ["Ball below the knee", "Eyes up, call out a number", "Fingertips, not palm"],
+        cones: [[100,95]], path: [] },
+      { id: "h2", name: "Cone Attack", dose: "3 sets per side", sets: 6,
+        cues: ["Cone 1 crossover, cone 2 between the legs", "Cone 3 behind the back, then attack", "Change speed out of every move"],
+        cones: [[150,112],[122,88],[150,64]], path: [[175,125],[150,112],[122,88],[150,64],[118,34],[106,20]] },
+      { id: "h3", name: "Two-ball dribble", dose: "3 × 30 sec", sets: 3,
+        cues: ["Same height, same rhythm", "Then alternate: one up, one down"],
+        cones: [], path: [] },
+      { id: "h4", name: "Mikan finishes", dose: "3 × 10 makes", sets: 3,
+        cues: ["Never let the ball drop below the chin", "Use the backboard both sides"],
+        cones: [], path: [[84,26],[100,18],[116,26],[100,18],[84,26]] }
+    ]},
+  { id: "shoot", cat: "Shooting", name: "Form to Pull-up", min: 45, level: "U16+",
+    blurb: "Builds the shot from the rim out, then adds the dribble.",
+    drills: [
+      { id: "s1", name: "Form shooting", dose: "5 spots × 10 makes", sets: 5,
+        cues: ["One hand first, guide hand off", "Hold the follow-through"],
+        cones: [[80,30],[90,40],[100,44],[110,40],[120,30]], path: [] },
+      { id: "s2", name: "Catch & shoot, 5 spots", dose: "5 × 5 shots", sets: 5,
+        cues: ["Hands ready before the catch", "Hop or 1-2 step, pick one and own it"],
+        cones: [[30,30],[52,82],[100,104],[148,82],[170,30]], path: [] },
+      { id: "s3", name: "1-dribble pull-up", dose: "4 × 6 each side", sets: 4,
+        cues: ["Hard dribble, sit into the stop", "Shoulders square at the top"],
+        cones: [[100,104]], path: [[100,118],[100,104],[128,82]] },
+      { id: "s4", name: "Free throws", dose: "2 × 10, tired legs", sets: 2,
+        cues: ["Same routine every shot", "Track makes out of 10"],
+        cones: [[100,58]], path: [] }
+    ]},
+  { id: "finish", cat: "Finishing", name: "Finishing Lab", min: 35, level: "U16+",
+    blurb: "Footwork and touch around the rim, both hands.",
+    drills: [
+      { id: "f1", name: "Euro step at the cone", dose: "3 × 6 each side", sets: 3,
+        cues: ["Long first step, sell the direction", "Protect the ball high"],
+        cones: [[100,70]], path: [[100,118],[100,74],[84,52],[104,26]] },
+      { id: "f2", name: "Reverse layups", dose: "3 × 8 each side", sets: 3,
+        cues: ["Use the rim as a shield", "Spin off the glass high"],
+        cones: [], path: [[60,74],[86,34],[118,22]] },
+      { id: "f3", name: "Floater series", dose: "3 × 8", sets: 3,
+        cues: ["Release off one foot from the lane", "High arc, soft touch"],
+        cones: [[100,58]], path: [[100,118],[100,62],[100,40]] }
+    ]},
+  { id: "defense", cat: "Defense", name: "Lockdown Defense", min: 35, level: "U16+",
+    blurb: "Stance, slides and closeouts. Legs will burn, that's the point.",
+    drills: [
+      { id: "d1", name: "Stance hold", dose: "4 × 30 sec", sets: 4,
+        cues: ["Feet wider than shoulders, hips low", "Hands active, weight on the balls of your feet"],
+        cones: [[100,80]], path: [] },
+      { id: "d2", name: "Lane slides", dose: "4 × 3 trips", sets: 4,
+        cues: ["Push off the trail foot, don't click heels", "Stay low, head level the whole way"],
+        cones: [[76,40],[124,40]], path: [[76,48],[124,48],[76,48]] },
+      { id: "d3", name: "Zig-zag slides", dose: "3 × full court", sets: 3,
+        cues: ["Drop step at every cone", "Turn the hips, not just the feet"],
+        cones: [[40,120],[90,96],[40,72],[90,48]], path: [[40,128],[90,96],[40,72],[90,48],[50,24]] },
+      { id: "d4", name: "Closeout & chop", dose: "3 × 6 each side", sets: 3,
+        cues: ["Sprint 2/3 of the way, chop the last steps", "High hand to the shooter's eyes"],
+        cones: [[30,30],[170,30]], path: [[100,30],[38,30]] },
+      { id: "d5", name: "Slide & sprint", dose: "3 × 5 reps", sets: 3,
+        cues: ["3 slides, then turn and sprint to the cone", "Explode out of the turn"],
+        cones: [[150,104],[60,30]], path: [[100,104],[150,104],[60,34]] }
+    ]},
+  { id: "legs", cat: "Gym", name: "Hooper Legs", min: 50, level: "U18+ / gym experience",
+    blurb: "Strength and bounce. Keep 2 reps in the tank on every set.",
+    drills: [
+      { id: "g1", muscle: "Legs", name: "Back squat", dose: "4 × 6", sets: 4, gym: [["Rest", "2 min"],["Tempo", "Controlled down, fast up"]], cues: ["Depth before load"] },
+      { id: "g2", muscle: "Legs", name: "Bulgarian split squat", dose: "3 × 8 per leg", sets: 3, gym: [["Rest", "90 sec"]], cues: ["Front knee tracks over toes"] },
+      { id: "g6", muscle: "Legs", name: "Romanian deadlift", dose: "3 × 8", sets: 3, gym: [["Rest", "90 sec"]], cues: ["Hips back, flat back", "Feel the hamstrings stretch"] },
+      { id: "g3", muscle: "Plyo", name: "Box jumps", dose: "4 × 5", sets: 4, gym: [["Rest", "Full recovery"],["Focus", "Land soft and quiet"]], cues: ["Step down, don't jump down"] },
+      { id: "g4", muscle: "Legs", name: "Calf raises", dose: "3 × 15", sets: 3, gym: [["Rest", "60 sec"]], cues: ["Pause at the top"] }
+    ]},
+  { id: "plyo", cat: "Gym", name: "Bounce Session", min: 30, level: "U16+",
+    blurb: "Jump higher, move quicker. Quality over quantity, full rest between sets.",
+    drills: [
+      { id: "p1", muscle: "Plyo", name: "Pogo jumps", dose: "3 × 20", sets: 3, gym: [["Rest", "60 sec"]], cues: ["Stiff ankles, quick ground contact"] },
+      { id: "p2", muscle: "Plyo", name: "Broad jumps", dose: "4 × 4", sets: 4, gym: [["Rest", "90 sec"]], cues: ["Big arm swing", "Stick the landing"] },
+      { id: "p3", muscle: "Plyo", name: "Lateral bounds", dose: "3 × 6 per side", sets: 3, gym: [["Rest", "90 sec"]], cues: ["Push off the outside leg", "Hold the landing 1 sec"] },
+      { id: "p4", muscle: "Plyo", name: "Single-leg hops", dose: "3 × 5 per leg", sets: 3, gym: [["Rest", "90 sec"]], cues: ["Knee stays in line", "Stop if form breaks"] },
+      { id: "p5", muscle: "Plyo", name: "Depth jumps", dose: "3 × 4", sets: 3, gym: [["Rest", "2 min"],["Box", "30–40 cm"]], cues: ["Step off, land, jump instantly", "Only with solid jump experience"] }
+    ]},
+  { id: "upper", cat: "Gym", name: "Upper & Core", min: 45, level: "U18+ / gym experience",
+    blurb: "Absorb contact, finish through it.",
+    drills: [
+      { id: "u1", muscle: "Chest", name: "Push-ups", dose: "4 × 12", sets: 4, gym: [["Rest", "60 sec"]], cues: ["Full range, chest to fist height"] },
+      { id: "u5", muscle: "Chest", name: "Dumbbell bench press", dose: "3 × 8", sets: 3, gym: [["Rest", "90 sec"]], cues: ["Shoulder blades pinned back"] },
+      { id: "u2", muscle: "Back", name: "Dumbbell row", dose: "3 × 10 per arm", sets: 3, gym: [["Rest", "60 sec"]], cues: ["Pull the elbow to the hip"] },
+      { id: "u6", muscle: "Back", name: "Pull-ups", dose: "3 × max (–2)", sets: 3, gym: [["Rest", "90 sec"],["Easier", "Band-assisted"]], cues: ["Full hang to chin over bar"] },
+      { id: "u3", muscle: "Core", name: "Med ball slams", dose: "3 × 8", sets: 3, gym: [["Rest", "60 sec"]], cues: ["Full extension, then slam"] },
+      { id: "u4", muscle: "Core", name: "Pallof press", dose: "3 × 10 per side", sets: 3, gym: [["Rest", "45 sec"]], cues: ["Don't let the band rotate you"] },
+      { id: "g5", muscle: "Core", name: "Plank", dose: "3 × 40 sec", sets: 3, gym: [["Rest", "45 sec"]], cues: ["Squeeze glutes, ribs down"] }
+    ]},
+  { id: "arms", cat: "Gym", name: "Shoulders & Arms", min: 35, level: "U18+ / gym experience",
+    blurb: "Healthy shoulders, strong hands. Helps with contact and ball security.",
+    drills: [
+      { id: "a1", muscle: "Shoulders", name: "Dumbbell overhead press", dose: "3 × 8", sets: 3, gym: [["Rest", "90 sec"]], cues: ["Ribs down, no arching"] },
+      { id: "a2", muscle: "Shoulders", name: "Lateral raises", dose: "3 × 12", sets: 3, gym: [["Rest", "45 sec"]], cues: ["Lead with the elbows", "Light weight, slow down"] },
+      { id: "a3", muscle: "Shoulders", name: "Face pulls", dose: "3 × 15", sets: 3, gym: [["Rest", "45 sec"]], cues: ["Pull to the forehead, thumbs back"] },
+      { id: "a4", muscle: "Arms", name: "Bicep curls", dose: "3 × 10", sets: 3, gym: [["Rest", "60 sec"]], cues: ["No swinging"] },
+      { id: "a5", muscle: "Arms", name: "Triceps dips", dose: "3 × 10", sets: 3, gym: [["Rest", "60 sec"]], cues: ["Elbows back, not out"] },
+      { id: "a6", muscle: "Arms", name: "Farmer's carry", dose: "3 × 30 m", sets: 3, gym: [["Rest", "60 sec"]], cues: ["Tall posture, tight grip"] }
+    ]}
+];
+const GYM_SUBS = ["Plyo", "Legs", "Chest", "Back", "Shoulders", "Arms", "Core"];
+
+const AGES = [
+  { v: "U14", t: "Under 14", tde: "Unter 14", d: "12–13 years", dde: "12–13 Jahre" },
+  { v: "U16", t: "Under 16", tde: "Unter 16", d: "14–15 years", dde: "14–15 Jahre" },
+  { v: "U18", t: "Under 18", tde: "Unter 18", d: "16–17 years", dde: "16–17 Jahre" },
+  { v: "18+", t: "18+", tde: "18+", d: "Senior / adult", dde: "Herren / Damen" }
+];
+const LEVELS = [
+  { v: "Beginner", d: "Playing 1–2 years, still building the basics", dde: "Spielt seit 1–2 Jahren, baut noch die Basics auf", per: 3 },
+  { v: "Intermediate", d: "Club player, solid basics, want to level up", dde: "Vereinsspieler, solide Basics, will sich steigern", per: 4 },
+  { v: "Advanced", d: "Top team or regional level, train most days", dde: "Erste Mannschaft oder Oberliga, trainiert fast täglich", per: 5 }
+];
+const FOCUS = [
+  { v: "handles", t: "Ball handling", tde: "Ballhandling", d: "Tighter, faster handles", dde: "Engeres, schnelleres Dribbling" },
+  { v: "shoot", t: "Shooting", tde: "Wurf", d: "Form, range, pull-ups", dde: "Technik, Reichweite, Pull-ups" },
+  { v: "finish", t: "Finishing", tde: "Abschluss", d: "Footwork & touch at the rim", dde: "Fußarbeit & Gefühl am Korb" },
+  { v: "defense", t: "Defense", tde: "Verteidigung", d: "Stance, slides, closeouts", dde: "Stance, Slides, Closeouts" },
+  { v: "strength", t: "Strength", tde: "Kraft", d: "Gym: legs, upper body, core", dde: "Gym: Beine, Oberkörper, Rumpf" },
+  { v: "bounce", t: "Explosiveness", tde: "Explosivität", d: "Jump higher, move quicker", dde: "Höher springen, schneller bewegen" }
+];
+const WEEK = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+const isYoung = (age) => age === "U14" || age === "U16";
+
+// Session recipes: [category, gym group, "main" | "warm" | fixed level, how many]
+const COURT = { handles: "Handles", shoot: "Shooting", finish: "Finishing", defense: "Defense" };
+const TYPES = {
+  handles: { name: "Handles Builder", cat: "Handles", fixed: "handles" },
+  shoot: { name: "Shooting Builder", cat: "Shooting", fixed: "shoot" },
+  finish: { name: "Finishing Builder", cat: "Finishing", fixed: "finish" },
+  defense: { name: "Defense Builder", cat: "Defense", fixed: "defense" },
+  lower: { name: "Lower Body Day", cat: "Gym", fixed: "legs", rec: [["Gym","Plyo","main",1],["Gym","Legs","main",2],["Gym","Core","main",1]] },
+  upper: { name: "Upper Body Day", cat: "Gym", fixed: "upper", rec: [["Gym","Chest","main",1],["Gym","Back","main",1],["Gym","Shoulders","main",1],["Gym","Arms","main",1]] },
+  bounce: { name: "Bounce Day", cat: "Gym", fixed: "plyo", rec: [["Gym","Plyo","main",3],["Gym","Legs","main",1]] },
+  base: { name: "Athletic Base", cat: "Gym", fixed: null, rec: [["Gym","Plyo","main",2],["Gym","Core","main",1],["Gym","Legs","Beginner",1]] }
+};
+const DOWN = { Beginner: "Beginner", Intermediate: "Beginner", Advanced: "Intermediate" };
+const BLURB = {
+  Beginner: "Built for your level: clean basics, good habits.",
+  Intermediate: "One easier warm-up drill, then three at your level.",
+  Advanced: "One warm-up drill, then advanced work at game speed."
+};
+
+const UP = { Beginner: "Intermediate", Intermediate: "Advanced" };
+
+function makeSession(type, p, occ, idx, used) {
+  const t = TYPES[type];
+  let main = p.level;
+  if (p.age === "U14" && main === "Advanced") main = "Intermediate";
+  const warm = DOWN[main];
+  const rec = t.rec || (main === "Beginner" ? [[t.cat, null, "main", 3]] : [[t.cat, null, "warm", 1], [t.cat, null, "main", 3]]);
+  const ids = [];
+  const take = (cat, muscle, lvl, n) => {
+    const list = ALL_DRILLS.filter(d => !d.wId && d.cat === cat && (!muscle || d.muscle === muscle) && d.lvl === lvl);
+    const key = cat + "|" + muscle + "|" + lvl;
+    let start = used[key] || 0, got = 0;
+    for (let k = 0; got < n && k < list.length; k++) {
+      const d = list[(start + k) % list.length];
+      if (!ids.includes(d.id)) { ids.push(d.id); got++; }
+    }
+    used[key] = start + n;
+  };
+  rec.forEach(([cat, muscle, which, n]) => take(cat, muscle, which === "main" ? main : which === "warm" ? warm : which, n));
+  // Repeat days get one step-up drill so the week doesn't feel copy-pasted
+  let challenge = false;
+  if (occ >= 1 && UP[main] && p.age !== "U14") {
+    const r = rec.find(x => x[2] === "main");
+    take(r[0], r[1], UP[main], 1); challenge = true;
+  }
+  return { id: "gen" + idx, cat: t.cat, name: `${t.name} · ${main}${challenge ? "+" : ""}`, level: `${p.age} · ${main}`,
+    min: ids.length * 10 + 5, blurb: BLURB[main] + (challenge ? " Plus one step-up drill to stretch you." : ""), drillIds: ids };
+}
+
+function spread(cands, n) {
+  if (n <= 0) return [];
+  if (n >= cands.length) return [...cands];
+  return Array.from({ length: n }, (_, i) => cands[Math.floor(i * cands.length / n)]);
+}
+
+function buildPlan(p) {
+  const team = p.team || [], gym = p.gym || 0, solo = p.solo || 0;
+  const free = WEEK.filter(d => !team.includes(d));
+  // Gym: spread over free days, overflow onto team days (lift after practice)
+  let gymDays = spread(free, gym);
+  if (gym > gymDays.length) gymDays = gymDays.concat(spread(team, gym - gymDays.length));
+  // Solo court work: free days without gym first, then gym days, then team days
+  const open = free.filter(d => !gymDays.includes(d));
+  let soloDays = spread(open, solo);
+  if (solo > soloDays.length) soloDays = soloDays.concat(spread(gymDays.filter(d => !soloDays.includes(d)), solo - soloDays.length));
+  if (solo > soloDays.length) soloDays = soloDays.concat(spread(team.filter(d => !soloDays.includes(d)), solo - soloDays.length));
+
+  const has = (f) => p.focus.includes(f), young = isYoung(p.age);
+  const gymTypes = young ? (has("bounce") ? ["bounce", "base"] : ["base", "bounce"])
+    : has("bounce") && !has("strength") ? ["bounce", "lower", "upper"]
+    : has("bounce") ? ["lower", "upper", "bounce"] : ["lower", "upper"];
+  let courtTypes = p.focus.filter(f => COURT[f]);
+  if (!courtTypes.length) courtTypes = ["handles", "shoot"];
+
+  const seen = {}, gen = [], used = {}, entries = [];
+  const add = (day, type, kind, i) => {
+    const occ = seen[type] || 0; seen[type] = occ + 1;
+    const fixed = TYPES[type].fixed;
+    const fixedOk = fixed && !(young && W.find(w => w.id === fixed).level.startsWith("U18"));
+    if (occ === 1 && fixedOk) return entries.push({ day, id: fixed, kind });
+    const s = makeSession(type, p, occ, gen.length + "-" + kind, used);
+    gen.push(s); entries.push({ day, id: s.id, kind });
+  };
+  team.forEach(day => entries.push({ day, kind: "team" }));
+  gymDays.forEach((day, i) => add(day, gymTypes[i % gymTypes.length], "gym"));
+  soloDays.forEach((day, i) => add(day, courtTypes[i % courtTypes.length], "court"));
+  const order = { team: 0, court: 1, gym: 2 };
+  entries.sort((a, b) => WEEK.indexOf(a.day) - WEEK.indexOf(b.day) || order[a.kind] - order[b.kind]);
+  return { plan: entries, gen };
+}
+
+const getW = (id) => {
+  const w = W.find(x => x.id === id);
+  if (w) return w;
+  const g = (state.gen || []).find(x => x.id === id);
+  return g ? { ...g, drills: g.drillIds.map(i => ALL_DRILLS.find(d => d.id === i)).filter(Boolean) } : W[0];
+};
+
+const store = {
+  get() { try { return JSON.parse(localStorage.getItem("hw-state") || "null"); } catch (e) { return null; } },
+  set(s) { try { localStorage.setItem("hw-state", JSON.stringify(s)); } catch (e) {} }
+};
+const state = Object.assign({ active: "handles", done: { h1: 3, h2: 2 }, open: "h2", filter: "All", sub: "All", lvl: "All", mode: "sessions", q: "", libOpen: null,
+  lang: "en", profile: null, plan: [], gen: [], step: 0, draft: { age: null, level: null, focus: [], team: [], gym: null, solo: null } }, store.get() || {});
+const save = () => store.set({ active: state.active, done: state.done, filter: state.filter, profile: state.profile, plan: state.plan, gen: state.gen, lang: state.lang });
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+function courtSVG(d) {
+  if (!d.cones || !d.path || (!d.cones.length && !d.path.length)) return "";
+  const cones = (d.cones || []).map(([x,y]) => `<polygon points="${x},${y-5} ${x-4.5},${y+3} ${x+4.5},${y+3}" fill="var(--accent)"/>`).join("");
+  let path = "", player = "";
+  if (d.path && d.path.length) {
+    path = `<polyline points="${d.path.map(p => p.join(",")).join(" ")}" fill="none" stroke="var(--fg)" stroke-width="1.6" stroke-dasharray="4 3" stroke-linejoin="round" marker-end="url(#ah-${d.id})"/>`;
+    const [sx, sy] = d.path[0];
+    player = `<circle cx="${sx}" cy="${sy}" r="5" fill="var(--fg)"/><circle cx="${sx}" cy="${sy}" r="2" fill="var(--court)"/>`;
+  }
+  return `<div class="court"><svg viewBox="0 0 200 130" role="img" aria-label="Court diagram for ${esc(d.name)}">
+    <defs><marker id="ah-${d.id}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="var(--fg)"/></marker></defs>
+    <g fill="none" stroke="var(--court-line)" stroke-width="1.2">
+      <line x1="0" y1="2" x2="200" y2="2"/>
+      <rect x="76" y="2" width="48" height="56"/>
+      <path d="M76 58 A24 24 0 0 0 124 58"/>
+      <path d="M22 2 L22 30 A80 80 0 0 0 178 30 L178 2"/>
+      <line x1="90" y1="10" x2="110" y2="10" stroke-width="2"/>
+      <circle cx="100" cy="16" r="4.5" stroke="var(--accent)" stroke-width="1.6"/>
+    </g>${path}${cones}${player}</svg></div>`;
+}
+
+function recGym(p) {
+  if (p.age === "U14") return { n: 1, why: L("At this age one session of jumps and bodyweight strength is plenty.", "In diesem Alter reicht eine Einheit mit Sprüngen und Übungen mit dem eigenen Körpergewicht.") };
+  if (p.age === "U16") return { n: 2, why: L("Two short sessions build a base and help prevent injuries. Bodyweight and light weights only.", "Zwei kurze Einheiten bauen eine Basis auf und beugen Verletzungen vor. Nur Körpergewicht und leichte Gewichte.") };
+  if (p.age === "U18") return { n: 2, why: L("Two full-body sessions build strength without stealing energy from the court.", "Zwei Ganzkörper-Einheiten bauen Kraft auf, ohne dir die Energie fürs Feld zu rauben.") };
+  return p.level === "Beginner" ? { n: 2, why: L("Two sessions to learn the lifts with clean form first.", "Zwei Einheiten, um die Übungen erst mit sauberer Technik zu lernen.") }
+    : { n: 3, why: L("Three sessions let you split lower body, upper body and power.", "Mit drei Einheiten kannst du Unterkörper, Oberkörper und Explosivität aufteilen.") };
+}
+function recSolo(p, teamN) {
+  let total = { Beginner: 4, Intermediate: 5, Advanced: 6 }[p.level];
+  if (p.age === "U14") total = Math.min(total, 4);
+  const n = Math.max(1, Math.min(4, total - teamN));
+  return { n, why: L(`With ${teamN} team practice${teamN === 1 ? "" : "s"}, ${n} solo session${n === 1 ? "" : "s"} gets you to about ${teamN + n} basketball days. More than that and your legs won't recover.`,
+    `Mit ${teamN} Teamtraining${teamN === 1 ? "" : "s"} kommst du mit ${n} Solo-Einheit${n === 1 ? "" : "en"} auf etwa ${teamN + n} Basketball-Tage. Mehr schaffen deine Beine nicht zu regenerieren.`) };
+}
+const countOpts = (key, max, rec, cur) => `<div class="opts four">${Array.from({ length: max + 1 }, (_, n) =>
+  `<button class="opt count-opt" data-${key}="${n}" aria-pressed="${cur === n}"><strong>${n}×</strong><span>${n === 0 ? L("None", "Keine") : L("per week", "pro Woche")}</span>${n === rec ? `<em class="rec">${L("Recommended", "Empfohlen")}</em>` : ""}</button>`).join("")}</div>`;
+
+function renderStart() {
+  const s = state.step, d = state.draft, N = 6;
+  const tN = d.team.length;
+  const gR = d.age ? recGym(d) : { n: 2, why: "" };
+  const sR = d.level ? recSolo(d, tN) : { n: 2, why: "" };
+  const busy = new Set([...d.team]);
+  const qs = [
+    { h: L("How old are you?", "Wie alt bist du?"), help: L("We pick drills and gym work that fit your age.", "Wir wählen Übungen und Gym-Training passend zu deinem Alter."),
+      body: `<div class="opts two">${AGES.map(a => `<button class="opt" data-age="${a.v}" aria-pressed="${d.age === a.v}"><strong>${L(a.t, a.tde)}</strong><span>${L(a.d, a.dde)}</span></button>`).join("")}</div>`,
+      ok: !!d.age },
+    { h: L("What's your level?", "Wie gut bist du?"), help: L("Be honest. This sets how hard your drills are.", "Sei ehrlich. Davon hängt ab, wie schwer deine Übungen sind."),
+      body: `<div class="opts">${LEVELS.map(l => `<button class="opt" data-level="${l.v}" aria-pressed="${d.level === l.v}"><strong>${lv(l.v)}</strong><span>${L(l.d, l.dde)}</span></button>`).join("")}</div>`,
+      ok: !!d.level },
+    { h: L("What do you really want to work on?", "Woran willst du wirklich arbeiten?"), help: L(`Pick up to 3. ${d.focus.length}/3 selected.`, `Wähle bis zu 3. ${d.focus.length}/3 ausgewählt.`),
+      body: `<div class="opts two">${FOCUS.map(f => `<button class="opt" data-focus="${f.v}" aria-pressed="${d.focus.includes(f.v)}"><strong>${L(f.t, f.tde)}</strong><span>${L(f.d, f.dde)}</span></button>`).join("")}</div>`,
+      ok: d.focus.length > 0 },
+    { h: L("When do you have team practice?", "Wann hast du Teamtraining?"), help: L(`Tap your practice days. ${tN} selected.`, `Tippe deine Trainingstage an. ${tN} ausgewählt.`),
+      body: `<div class="opts days">${WEEK.map(w => `<button class="opt day-opt" data-team="${w}" aria-pressed="${d.team.includes(w)}"><strong>${dy(w)}</strong></button>`).join("")}</div>
+        <div class="tip">${L("<b>Recommendation:</b> most club players practice 2–3× a week with their team. No team right now? Just tap Next.", "<b>Empfehlung:</b> Die meisten Vereinsspieler trainieren 2–3× pro Woche mit ihrem Team. Gerade kein Team? Tippe einfach auf Weiter.")}</div>`,
+      ok: true },
+    { h: L("How often do you want to lift?", "Wie oft willst du ins Gym?"), help: L("Gym sessions per week, on top of team practice.", "Gym-Einheiten pro Woche, zusätzlich zum Teamtraining."),
+      body: `${countOpts("gym", 4, gR.n, d.gym)}<div class="tip"><b>${L("Recommendation", "Empfehlung")}: ${gR.n}× ${L("per week", "pro Woche")}.</b> ${gR.why}</div>`,
+      ok: d.gym !== null },
+    { h: L("How many solo basketball sessions?", "Wie viele Solo-Basketball-Einheiten?"), help: L("Your own court work: handles, shooting, finishing, defense.", "Dein eigenes Training auf dem Feld: Ballhandling, Wurf, Abschluss, Verteidigung."),
+      body: `${countOpts("solo", 5, sR.n, d.solo)}<div class="tip"><b>${L("Recommendation", "Empfehlung")}: ${sR.n}× ${L("per week", "pro Woche")}.</b> ${sR.why}</div>
+        ${tN + (d.gym || 0) + (d.solo || 0) > 6 ? `<div class="tip warn">${L("That's a lot. Keep at least one full rest day per week, we'll stack sessions on some days.", "Das ist viel. Plane mindestens einen kompletten Ruhetag pro Woche ein. An manchen Tagen legen wir Einheiten zusammen.")}</div>` : ""}
+        ${(d.gym || 0) + (d.solo || 0) === 0 ? `<div class="tip warn">${L("Pick at least one gym or solo session so we can build a plan.", "Wähle mindestens eine Gym- oder Solo-Einheit, damit wir einen Plan bauen können.")}</div>` : ""}`,
+      ok: d.solo !== null && (d.gym || 0) + (d.solo || 0) > 0 }
+  ];
+  const q = qs[s];
+  $("view-start").innerHTML = `
+    <div class="steps" aria-label="${L("Step", "Schritt")} ${s + 1} / ${N}">${Array.from({ length: N }, (_, i) => `<i class="${i <= s ? "on" : ""}"></i>`).join("")}</div>
+    <div class="hero"><div class="eyebrow">${L(`Step ${s + 1} of ${N} · Build your plan`, `Schritt ${s + 1} von ${N} · Dein Plan`)}</div><h2>${q.h}</h2><p class="q-help">${q.help}</p></div>
+    ${q.body}
+    <div class="nav-row">
+      ${s > 0 ? `<button class="btn ghost" data-step="back">${L("Back", "Zurück")}</button>` : ""}
+      ${s < N - 1 ? `<button class="btn" data-step="next" ${q.ok ? "" : "disabled"}>${L("Next", "Weiter")}</button>`
+              : `<button class="btn" data-build="1" ${q.ok ? "" : "disabled"}>${L("Build my plan", "Plan erstellen")}</button>`}
+    </div>`;
+}
+
+function showStart(on) {
+  $("view-start").hidden = !on;
+  $("tabbar").hidden = on;
+  ["today","library","progress"].forEach(x => { $("view-" + x).hidden = on || x !== "today"; $("tab-" + x).setAttribute("aria-selected", x === "today"); });
+  if (on) renderStart();
+  window.scrollTo(0, 0);
+}
+
+function profileBlock() {
+  const p = state.profile; if (!p) return "";
+  const f = p.focus.map(v => { const x = FOCUS.find(y => y.v === v); return L(x.t, x.tde); }).join(", ");
+  const team = p.team || [];
+  const tip = p.level === "Beginner" ? L("First week: do one set less than listed and focus on clean form.", "Erste Woche: einen Satz weniger als angegeben und auf saubere Technik achten.")
+    : isYoung(p.age) && p.focus.includes("strength") ? L("Weighted gym work comes from U18 or with a coach. Your strength days use jumps, core and bodyweight work.", "Training mit Gewichten erst ab U18 oder mit einem Coach. Deine Krafttage bestehen aus Sprüngen, Rumpf und Körpergewichtsübungen.")
+    : p.level === "Advanced" ? L("Push the pace: full game speed on every rep, short rests.", "Tempo hoch: jede Wiederholung im Spieltempo, kurze Pausen.") : "";
+  const nSess = state.plan.filter(x => x.kind !== "team").length;
+  return `
+    <div class="profile"><div>${esc(p.age)} · ${esc(lv(p.level))}<small>${L("Focus", "Fokus")}: ${esc(f)}</small>
+      <small>Team: ${team.length ? team.map(dy).join(", ") : L("none", "keins")} · Gym ${p.gym ?? "–"}× · Solo ${p.solo ?? "–"}×</small></div>
+      <button class="linkbtn" data-edit="1">${L("Edit", "Ändern")}</button></div>
+    <div class="eyebrow">${L("Your week", "Deine Woche")} · ${nSess} ${L("sessions", "Einheiten")}${team.length ? ` + ${team.length} ${L("team", "Team")}` : ""}</div>
+    <div class="plan">${state.plan.map((x, i) => {
+      if (x.kind === "team") return `<div class="pday team"><small>${dy(x.day)}</small><span>${L("Team practice", "Teamtraining")}</span></div>`;
+      const w = getW(x.id);
+      return `<button class="pday" data-planpick="${i}" aria-pressed="${state.activeIdx === i}"><small>${dy(x.day)} · ${x.kind === "gym" ? "Gym" : L("Court", "Feld")} · ${w.min} min</small><span>${esc(nm(w.name))}</span></button>`; }).join("")}</div>
+    ${tip ? `<div class="tip">${tip}</div>` : ""}`;
+}
+
+function renderToday() {
+  const w = getW(state.active);
+  const total = w.drills.reduce((a, d) => a + d.sets, 0);
+  const done = w.drills.reduce((a, d) => a + Math.min(state.done[d.id] || 0, d.sets), 0);
+  const pct = Math.round(done / total * 100);
+  $("view-today").innerHTML = `
+    ${profileBlock()}
+    <div class="hero">
+      <div class="eyebrow">${L("Today", "Heute")} · ${esc(cat(w.cat))}</div>
+      <h2>${esc(nm(w.name))}</h2>
+      <div class="meta"><span>${w.min} min</span><span>${w.drills.length} ${L("drills", "Übungen")}</span><span>${esc(nm(w.level))}</span></div>
+      <p class="q-help">${esc(tr(w.blurb))}</p>
+      <div class="bar" aria-label="${L("Session progress", "Fortschritt")}"><i style="width:${pct}%"></i></div>
+      <div class="meta"><span>${done} / ${total} ${L("sets done", "Sätze geschafft")}</span></div>
+    </div>
+    ${pct === 100 ? `<div class="done-banner">${L("Session complete. Log it and rest up, you earned it.", "Einheit geschafft. Gut erholen, das hast du dir verdient.")}</div>` : ""}
+    <div class="drills">${w.drills.map(d => {
+      const n = Math.min(state.done[d.id] || 0, d.sets), open = state.open === d.id;
+      return `<div class="drill ${n === d.sets ? "complete" : ""}">
+        <button class="drill-head" data-open="${d.id}" aria-expanded="${open}">
+          <span class="drill-name">${esc(d.name)}</span>
+          <span class="count">${n === d.sets ? "✓ " : ""}${n}/${d.sets}</span>
+          <span class="drill-dose">${d.lvl ? `<span class="lv lv-${d.lvl[0]}">${lv(d.lvl)}</span> ` : ""}${esc(dose(d.dose))}</span>
+        </button>
+        ${open ? `<div class="drill-body">
+          ${d.gym ? `<table class="gymtable"><tbody>${d.gym.map(r => `<tr><td>${esc(cell(r[0]))}</td><td>${esc(cell(r[1]))}</td></tr>`).join("")}</tbody></table>` : courtSVG(d)}
+          <ul class="cues">${d.cues.map(c => `<li>${esc(tr(c))}</li>`).join("")}</ul>
+          <div class="sets">${Array.from({ length: d.sets }, (_, i) =>
+            `<button class="set" data-set="${d.id}" data-i="${i}" aria-pressed="${i < n}">${L("Set", "Satz")} ${i + 1}</button>`).join("")}</div>
+        </div>` : ""}
+      </div>`; }).join("")}
+    </div>
+    <p class="note">${L("Tap a drill to see the diagram and coaching cues. Tap a set when it's done.", "Tippe auf eine Übung für Skizze und Coaching-Tipps. Tippe auf einen Satz, wenn er geschafft ist.")}</p>`;
+}
+
+// Drill bank: [category, gym group, level B/I/A, name, dose, cue 1, cue 2]
+const BANK = [
+  ["Handles",null,"B","Stationary pound dribble","3 × 30 sec each hand","Ball below the knee","Eyes up the whole time"],
+  ["Handles",null,"B","Figure 8 dribble","3 × 30 sec","Stay low in your stance","Keep the ball close to your legs"],
+  ["Handles",null,"B","Walking crossovers","3 × court length","Cross low and quick","Change hands below the knee"],
+  ["Handles",null,"I","Spider dribble","3 × 30 sec","Front-front-back-back rhythm","Stay on your fingertips"],
+  ["Handles",null,"I","Retreat dribble & attack","4 × 6","Two hard retreat dribbles","Attack on the change of speed"],
+  ["Handles",null,"I","In-and-out to crossover","3 × 8 each side","Sell the in-and-out with your shoulders","Explode out of the cross"],
+  ["Handles",null,"A","Two-ball crossover series","4 × 30 sec","Cross both balls at the same time","Keep both at the same height"],
+  ["Handles",null,"A","Tennis ball toss dribble","4 × 30 sec","Toss with the free hand, catch it every time","Never look down at the ball"],
+  ["Handles",null,"A","Snatch-back to step-back","4 × 6 each side","Hard drive, then snatch back","Feet under you before you rise"],
+  ["Handles",null,"A","Full-court combo moves","5 trips","3 different moves per trip at game speed","Finish every trip with a layup"],
+
+  ["Shooting",null,"B","One-hand form shots","3 × 10 makes","Elbow under the ball","Hold the follow-through"],
+  ["Shooting",null,"B","Free throw routine","3 × 10","Same routine every shot","Write down your makes"],
+  ["Shooting",null,"B","Bank shots from the block","2 × 10 each side","Aim for the top corner of the square","Square up to the glass"],
+  ["Shooting",null,"I","Elbow catch & shoot","4 × 10","Catch on the hop","Same release point every rep"],
+  ["Shooting",null,"I","Around the world","3 rounds","7 spots, 2 makes to move on","Feet set before every shot"],
+  ["Shooting",null,"I","Off-the-dribble jumper","4 × 6 each side","Hard dribble into a 1-2 stop","Rise straight up, land in place"],
+  ["Shooting",null,"A","Step-back threes","4 × 6 each side","Push off the front foot","Land balanced, no drifting"],
+  ["Shooting",null,"A","Relocation threes","4 × 8","Shoot, sprint to a new spot, catch and shoot","No rest between shots"],
+  ["Shooting",null,"A","Pull-up off a screen","4 × 6 each side","Use a chair as the screen, come off tight","Shoulders square on the rise"],
+  ["Shooting",null,"A","Pressure free throws","5 × 2 after sprints","Baseline sprint, then 2 free throws","Track makes on tired legs"],
+
+  ["Finishing",null,"B","Basic layups","3 × 10 each side","Right hand on the right, left hand on the left","Drive the knee up on the jump"],
+  ["Finishing",null,"B","Power layup","3 × 8 each side","Two-foot jump stop","Protect the ball with your body"],
+  ["Finishing",null,"B","Two-hand bank finish","3 × 8 each side","Use the glass","Jump straight up, not forward"],
+  ["Finishing",null,"I","Reverse Mikan","3 × 10 makes","Reverse layups right under the rim","Use the rim as a shield"],
+  ["Finishing",null,"I","Inside-hand finishes","3 × 8 each side","Finish with the hand closest to the middle","Keep the ball away from the shot blocker"],
+  ["Finishing",null,"I","Hop step finish","3 × 8 each side","Gather, hop to two feet","Go up strong and balanced"],
+  ["Finishing",null,"A","Spin move finish","4 × 6 each side","Spin off the defender's hip","Keep the ball tight to your body"],
+  ["Finishing",null,"A","Contact finishes","4 × 6","Partner bumps you with a pad on the way up","Absorb the bump, then finish high"],
+  ["Finishing",null,"A","Up-and-under","4 × 6 each side","Sell the shot fake","Step through low and quick"],
+  ["Finishing",null,"A","Euro step to reverse","4 × 6 each side","Euro step, finish on the far side of the rim","Control your body in the air"],
+
+  ["Defense",null,"B","Wall sit in stance","3 × 30 sec","Hips low, back flat","Hands up and active"],
+  ["Defense",null,"B","Slide to the line","3 × 4 trips","Push off, don't hop","Stay at the same height"],
+  ["Defense",null,"B","Drop step & slide","3 × 6 each side","Open the hip on the drop step","Slide right after the drop"],
+  ["Defense",null,"I","Lateral cone touches","3 × 30 sec","Touch the cone with the outside hand","Stay low the whole time"],
+  ["Defense",null,"I","Mirror drill","4 × 20 sec","Partner moves, you mirror","Never cross your feet"],
+  ["Defense",null,"I","Closeout to slide","3 × 6","Chop your feet, then slide to cut off the drive","Hand high on the closeout"],
+  ["Defense",null,"A","Full-court 1-on-1 containment","5 trips","Turn the ball handler 3 times per trip","Beat them to the spot"],
+  ["Defense",null,"A","Shell reaction slides","4 × 30 sec","Partner points, you react instantly","Jump to the ball on every pass"],
+  ["Defense",null,"A","Taking a charge","3 × 5","Beat the driver to the spot, chest square","Fall back safely, chin tucked"],
+  ["Defense",null,"A","Box-out & pursue","4 × 6","Find, hit, hold","Chase the ball after contact"],
+
+  ["Gym","Plyo","B","Jump rope","3 × 60 sec","Small, quick jumps","Stay on the balls of your feet"],
+  ["Gym","Plyo","B","Squat jumps","3 × 8","Sit back, then explode up","Land soft and quiet"],
+  ["Gym","Plyo","B","Line hops","3 × 20 sec","Quick hops over a line","Minimal ground contact"],
+  ["Gym","Plyo","I","Tuck jumps","3 × 6","Knees to chest at the top","Reset between reps if needed"],
+  ["Gym","Plyo","I","Skater bounds","3 × 8 each side","Push off the outside leg","Stick each landing for 1 sec"],
+  ["Gym","Plyo","I","Split squat jumps","3 × 6 each side","Switch legs in the air","Back knee stays off the floor"],
+  ["Gym","Plyo","A","Depth jump to broad jump","4 × 3","Step off the box, land, jump forward instantly","Only with solid jump experience"],
+  ["Gym","Plyo","A","Hurdle hops","4 × 5","Continuous jumps, short ground contact","Knees drive up over each hurdle"],
+  ["Gym","Plyo","A","Single-leg box jump","3 × 4 each leg","Low box to start","Land on the same leg, knee in line"],
+  ["Gym","Plyo","A","Max approach jumps","5 × 3","Game-like 2-step approach","Full rest, every rep at 100%"],
+
+  ["Gym","Legs","B","Goblet squat","3 × 10","Elbows inside the knees","Chest up"],
+  ["Gym","Legs","B","Walking lunges","3 × 10 each leg","Long step, upright torso","Back knee almost touches the floor"],
+  ["Gym","Legs","B","Glute bridge","3 × 12","Squeeze glutes at the top","Ribs down"],
+  ["Gym","Legs","I","Front squat","4 × 6","Elbows high","Stay upright, full depth"],
+  ["Gym","Legs","I","Step-ups","3 × 8 each leg","Drive through the front heel","Don't push off the back foot"],
+  ["Gym","Legs","I","Single-leg RDL","3 × 8 each leg","Hips square to the floor","Slow on the way down"],
+  ["Gym","Legs","A","Trap bar deadlift","4 × 5","Push the floor away","Neutral spine"],
+  ["Gym","Legs","A","Nordic hamstring curl","3 × 5","Lower as slow as you can","Use your hands to catch yourself"],
+  ["Gym","Legs","A","Heavy split squat","4 × 6 each leg","Rear foot elevated on a bench","Front knee tracks over the toes"],
+  ["Gym","Legs","A","Hang power clean","5 × 3","Jump and shrug, fast elbows","Learn it with a coach first"],
+
+  ["Gym","Chest","B","Incline push-ups","3 × 10","Hands on a bench","Body in one straight line"],
+  ["Gym","Chest","B","Push-ups","3 × 8","Elbows about 45° from the body","Full range of motion"],
+  ["Gym","Chest","B","Dumbbell floor press","3 × 10","Pause when elbows touch the floor","Press straight up"],
+  ["Gym","Chest","I","Dumbbell bench press","4 × 8","Shoulder blades pinned back","Control the lowering"],
+  ["Gym","Chest","I","Weighted push-ups","3 × 8","Plate on the upper back or a vest","Keep the core tight"],
+  ["Gym","Chest","I","Incline dumbbell press","3 × 10","Bench at about 30°","Don't flare the elbows"],
+  ["Gym","Chest","A","Barbell bench press","4 × 5","Feet planted, slight arch","Bar to mid-chest"],
+  ["Gym","Chest","A","Deficit push-ups","3 × 10","Hands on plates for extra depth","Slow on the way down"],
+  ["Gym","Chest","A","Plyo push-ups","4 × 5","Explode so the hands leave the floor","Land soft, reset"],
+  ["Gym","Chest","A","Weighted dips","3 × 6","Slight forward lean","Only go as deep as your shoulders allow"],
+
+  ["Gym","Back","B","Band pull-aparts","3 × 15","Arms straight","Squeeze the shoulder blades"],
+  ["Gym","Back","B","Inverted rows","3 × 8","Body straight under a bar or table","Chest to the bar"],
+  ["Gym","Back","B","Superman hold","3 × 20 sec","Lift arms and legs together","Look at the floor"],
+  ["Gym","Back","I","Lat pulldown","3 × 10","Pull the bar to the upper chest","No leaning back"],
+  ["Gym","Back","I","Single-arm dumbbell row","3 × 10 each arm","Elbow to the hip","Flat back"],
+  ["Gym","Back","I","Band-assisted chin-ups","3 × 6","Full hang at the bottom","Chin over the bar"],
+  ["Gym","Back","A","Weighted pull-ups","4 × 5","Dip belt or a dumbbell between the feet","No kipping"],
+  ["Gym","Back","A","Barbell row","4 × 6","Hinge to about 45°","Pull to the belly button"],
+  ["Gym","Back","A","Renegade row","3 × 6 each side","Push-up position, row one dumbbell","Hips stay level"],
+  ["Gym","Back","A","Chest-supported row","3 × 10","Chest on an incline bench","Pause at the top"],
+
+  ["Gym","Shoulders","B","Band external rotation","3 × 15 each arm","Elbow pinned to your side","Slow and controlled"],
+  ["Gym","Shoulders","B","Light lateral raises","3 × 12","Lead with the elbows","Stop at shoulder height"],
+  ["Gym","Shoulders","B","Wall slides","3 × 10","Back and arms flat on the wall","Slide up without arching"],
+  ["Gym","Shoulders","I","Arnold press","3 × 10","Rotate the palms on the way up","Ribs down"],
+  ["Gym","Shoulders","I","Y-T-W raises","3 × 8 each letter","Lie face down on an incline bench","Very light weight"],
+  ["Gym","Shoulders","I","Seated dumbbell press","3 × 8","Back against the bench","Press straight overhead"],
+  ["Gym","Shoulders","A","Push press","4 × 5","Short dip, drive with the legs","Lock out overhead"],
+  ["Gym","Shoulders","A","Landmine press","3 × 8 each arm","Press up and slightly forward","Brace the core"],
+  ["Gym","Shoulders","A","Wall handstand hold","3 × 20 sec","Stomach facing the wall","Push the floor away"],
+  ["Gym","Shoulders","A","Bottoms-up kettlebell press","3 × 6 each arm","Kettlebell upside down","Squeeze the handle hard"],
+
+  ["Gym","Arms","B","Band curls","3 × 12","Elbows stay by your sides","Squeeze at the top"],
+  ["Gym","Arms","B","Bench dips","3 × 10","Hands on a bench behind you","Elbows point back"],
+  ["Gym","Arms","B","Wrist curls","3 × 15","Forearms on your thighs","Full range"],
+  ["Gym","Arms","I","Hammer curls","3 × 10","Thumbs up","No swinging"],
+  ["Gym","Arms","I","Overhead triceps extension","3 × 10","Elbows point forward","Full stretch at the bottom"],
+  ["Gym","Arms","I","Plate pinch hold","3 × 20 sec","Pinch two plates together","Builds ball security"],
+  ["Gym","Arms","A","Weighted chin-ups","4 × 5","Palms facing you","Control the way down"],
+  ["Gym","Arms","A","Close-grip bench press","4 × 6","Hands shoulder-width","Elbows close to the body"],
+  ["Gym","Arms","A","Towel pull-up hang","3 × 20 sec","Hang from two towels over the bar","Huge grip strength builder"],
+  ["Gym","Arms","A","Fat-grip farmer's carry","4 × 30 m","Thick handles or towels around the grip","Tall posture"],
+
+  ["Gym","Core","B","Dead bug","3 × 10 each side","Lower back pressed into the floor","Move slowly"],
+  ["Gym","Core","B","Side plank","3 × 20 sec each side","Hips high","Body in one line"],
+  ["Gym","Core","B","Bird dog","3 × 8 each side","Opposite arm and leg","No rotation in the hips"],
+  ["Gym","Core","I","Hollow hold","3 × 25 sec","Lower back flat on the floor","Arms and legs low"],
+  ["Gym","Core","I","Med ball Russian twist","3 × 12 each side","Rotate from the chest","Feet down if needed"],
+  ["Gym","Core","I","Bear crawl","3 × 15 m","Knees an inch off the floor","Hips stay level"],
+  ["Gym","Core","A","Hanging leg raises","3 × 10","No swinging","Curl the hips up"],
+  ["Gym","Core","A","Ab wheel rollout","3 × 8","Only as far as you can hold a flat back","Pull back with the abs"],
+  ["Gym","Core","A","Copenhagen plank","3 × 15 sec each side","Top leg on a bench","Great for groin strength"],
+  ["Gym","Core","A","Med ball rotational throw","4 × 6 each side","Throw against a wall with full hip turn","Like a hard skip pass"]
+];
+const LV = { B: "Beginner", I: "Intermediate", A: "Advanced" };
+const REST = { B: "60 sec", I: "90 sec", A: "2 min" };
+// Difficulty for the drills inside the ready-made sessions
+const W_LVL = { h1:"B", h2:"I", h3:"I", h4:"B", s1:"B", s2:"I", s3:"I", s4:"B", f1:"I", f2:"I", f3:"A",
+  d1:"B", d2:"B", d3:"I", d4:"I", d5:"A", g1:"A", g2:"I", g6:"I", g3:"I", g4:"B",
+  p1:"B", p2:"I", p3:"I", p4:"A", p5:"A", u1:"B", u5:"I", u2:"B", u6:"I", u3:"I", u4:"I", g5:"B",
+  a1:"I", a2:"B", a3:"B", a4:"B", a5:"I", a6:"I" };
+W.forEach(w => w.drills.forEach(d => { d.lvl = LV[W_LVL[d.id]]; }));
+const CAT_ORDER = ["Handles", "Shooting", "Finishing", "Defense", "Gym"];
+const LV_ORDER = { Beginner: 1, Intermediate: 2, Advanced: 3 };
+const ALL_DRILLS = [
+  ...W.flatMap(w => w.drills.map(d => ({ ...d, cat: w.cat, wId: w.id, wName: w.name }))),
+  ...BANK.map(([cat, muscle, l, name, dose, c1, c2], i) => ({
+    id: "b" + i, cat, muscle: muscle || undefined, lvl: LV[l], name, dose, cues: [c1, c2],
+    sets: Math.min(+((dose.match(/^(\d+)/) || [])[1] || 3), 6),
+    gym: cat === "Gym" ? [["Level", LV[l]], ["Rest", REST[l]]] : undefined, cones: [], path: []
+  }))
+].sort((a, b) => CAT_ORDER.indexOf(a.cat) - CAT_ORDER.indexOf(b.cat)
+  || (a.muscle && b.muscle ? GYM_SUBS.indexOf(a.muscle) - GYM_SUBS.indexOf(b.muscle) : 0)
+  || (LV_ORDER[a.lvl] || 0) - (LV_ORDER[b.lvl] || 0));
+
+function renderLibrary() {
+  const cats = ["All", "Handles", "Shooting", "Finishing", "Defense", "Gym"];
+  const subs = ["All gym", ...GYM_SUBS];
+  $("view-library").innerHTML = `
+    <div class="hero"><div class="eyebrow">${L("Library", "Bibliothek")}</div><h2>${L("Every drill & session", "Alle Übungen & Einheiten")}</h2></div>
+    <div class="seg" role="group" aria-label="${L("Show", "Anzeigen")}">
+      <button data-mode="sessions" aria-pressed="${state.mode === "sessions"}">${L("Sessions", "Einheiten")}<b>${W.length}</b></button>
+      <button data-mode="drills" aria-pressed="${state.mode === "drills"}">${L("Drills", "Übungen")}<b>${ALL_DRILLS.length}</b></button>
+    </div>
+    <input class="search" id="libSearch" type="search" placeholder="${L("Search drills, sessions, cues…", "Übungen, Einheiten, Tipps suchen…")}" value="${esc(state.q)}" aria-label="${L("Search the library", "Bibliothek durchsuchen")}">
+    <div class="chips">${cats.map(c => `<button class="chip" data-filter="${c}" aria-pressed="${state.filter === c}">${cat(c)}</button>`).join("")}</div>
+    ${state.filter === "Gym" ? `<div class="chips subchips" aria-label="Gym focus">${subs.map(s => {
+      const v = s === "All gym" ? "All" : s;
+      return `<button class="chip sub" data-sub="${v}" aria-pressed="${state.sub === v}">${s === "All gym" ? L("All gym", "Ganzes Gym") : cat(s)}</button>`; }).join("")}</div>` : ""}
+    ${state.mode === "drills" ? `<div class="chips" aria-label="${L("Difficulty", "Schwierigkeit")}">${["All", "Beginner", "Intermediate", "Advanced"].map(l =>
+      `<button class="chip sub lvchip" data-lvl="${l}" aria-pressed="${state.lvl === l}">${l === "All" ? L("All levels", "Alle Level") : lv(l)}</button>`).join("")}</div>` : ""}
+    <div class="lib" id="libList"></div>`;
+  renderLibList();
+}
+
+function renderLibList() {
+  const q = state.q.trim().toLowerCase();
+  const catOk = (c) => state.filter === "All" || c === state.filter;
+  const subOk = (m) => state.filter !== "Gym" || state.sub === "All" || m === state.sub;
+  let html = "";
+  if (state.mode === "sessions") {
+    const list = W.filter(w => catOk(w.cat) && w.drills.some(d => subOk(d.muscle)) && (!q || [w.name, w.blurb, tr(w.blurb), ...w.drills.map(d => d.name)].join(" ").toLowerCase().includes(q)));
+    html = list.map(w => `
+      <div class="wcard">
+        <div><div class="tag">${esc(cat(w.cat))} · ${w.min} min · ${w.drills.length} ${L("drills", "Übungen")}${state.plan.some(p => p.id === w.id) ? ` · <span class="foryou">${L("In your plan", "In deinem Plan")}</span>` : ""}</div><h3>${esc(w.name)}</h3></div>
+        ${w.id === state.active ? `<button class="btn ghost" data-go="today">${L("Current", "Aktuell")}</button>` : `<button class="btn" data-pick="${w.id}">${L("Start", "Starten")}</button>`}
+        <p>${esc(tr(w.blurb))}</p>
+        <p class="dtag">${w.drills.map(d => esc(d.name)).join(" · ")}</p>
+      </div>`).join("");
+  } else {
+    const list = ALL_DRILLS.filter(d => catOk(d.cat) && subOk(d.muscle) && (state.lvl === "All" || d.lvl === state.lvl)
+      && (!q || [d.name, d.dose, dose(d.dose), d.wName || "", d.muscle || "", cat(d.muscle || ""), cat(d.cat), d.lvl || "", lv(d.lvl || ""), ...d.cues, ...d.cues.map(tr)].join(" ").toLowerCase().includes(q)));
+    html = `<div class="drills">${list.map(d => {
+      const open = state.libOpen === d.id;
+      return `<div class="drill">
+        <button class="drill-head" data-libopen="${d.id}" aria-expanded="${open}">
+          <span class="drill-name">${esc(d.name)}</span>
+          <span class="count">${open ? "–" : "+"}</span>
+          <span class="dtag">${d.lvl ? `<span class="lv lv-${d.lvl[0]}">${lv(d.lvl)}</span> ` : ""}<em>${esc(cat(d.cat))}${d.muscle ? " · " + esc(cat(d.muscle)) : ""}</em> · ${esc(dose(d.dose))}</span>
+        </button>
+        ${open ? `<div class="drill-body">
+          ${d.gym ? `<table class="gymtable"><tbody>${d.gym.map(r => `<tr><td>${esc(cell(r[0]))}</td><td>${esc(cell(r[1]))}</td></tr>`).join("")}</tbody></table>` : courtSVG({ ...d, id: "lib-" + d.id })}
+          <ul class="cues">${d.cues.map(c => `<li>${esc(tr(c))}</li>`).join("")}</ul>
+          ${d.wId ? `<div class="dtag">${L("Part of", "Teil von")}: <em>${esc(d.wName)}</em></div>
+          ${d.wId === state.active ? `<button class="btn ghost" data-go="today">${L("In today's session", "In der heutigen Einheit")}</button>` : `<button class="btn" data-pick="${d.wId}">${L("Start this session", "Diese Einheit starten")}</button>`}`
+          : `<div class="dtag">${L("Extra drill · add it to any session or do it on its own", "Zusatzübung · in jede Einheit einbauen oder einzeln machen")}</div>`}
+        </div>` : ""}
+      </div>`; }).join("")}</div>`;
+    if (!list.length) html = "";
+  }
+  $("libList").innerHTML = html || `<p class="empty">${L(`Nothing matches "${esc(state.q)}". Try another word or pick "All".`, `Nichts gefunden für „${esc(state.q)}". Versuch ein anderes Wort oder wähle „Alle".`)}</p>`;
+}
+
+function renderProgress() {
+  const days = isDE() ? ["M","D","M","D","F","S","S"] : ["M","T","W","T","F","S","S"], on = [1,1,0,1,1,0,0];
+  const split = [["Handles", 32], ["Shooting", 24], ["Finishing", 12], ["Defense", 12], ["Gym", 20]];
+  $("view-progress").innerHTML = `
+    <div class="hero"><div class="eyebrow">${L("Progress", "Fortschritt")}</div><h2>${L("This week", "Diese Woche")}</h2></div>
+    <div class="week">${days.map((d, i) => `<div class="day ${on[i] ? "on" : ""}"><small>${d}</small>${on[i] ? "✓" : "–"}</div>`).join("")}</div>
+    <div class="stats">
+      <div class="stat"><b>4</b><span>${L("Sessions", "Einheiten")}</span></div>
+      <div class="stat"><b>175</b><span>${L("Minutes", "Minuten")}</span></div>
+      <div class="stat"><b>72%</b><span>${L("FT avg", "Freiwurf-Ø")}</span></div>
+    </div>
+    <div class="eyebrow">${L("Training split · last 30 days", "Trainingsverteilung · letzte 30 Tage")}</div>
+    <div class="split">${split.map(([k, v]) => `<div class="split-row"><span>${cat(k)}</span><div class="bar"><i style="width:${v}%"></i></div><em>${v}%</em></div>`).join("")}</div>
+    <p class="note">${L("Example data. In the real version this fills in from your logged sessions.", "Beispieldaten. In der echten Version füllt sich das mit deinen geloggten Einheiten.")}</p>`;
+}
+
+function setTab(t) {
+  ["today","library","progress"].forEach(x => {
+    $("view-" + x).hidden = x !== t;
+    $("tab-" + x).setAttribute("aria-selected", x === t);
+  });
+  window.scrollTo(0, 0);
+}
+
+document.addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.tab) return setTab(b.dataset.tab);
+  if (b.dataset.lang) { state.lang = state.lang === "de" ? "en" : "de"; save(); return renderAll(); }
+  const d = state.draft;
+  if (b.dataset.age) { d.age = b.dataset.age; return renderStart(); }
+  if (b.dataset.level) { d.level = b.dataset.level; return renderStart(); }
+  if (b.dataset.focus) {
+    const v = b.dataset.focus, i = d.focus.indexOf(v);
+    if (i >= 0) d.focus.splice(i, 1); else if (d.focus.length < 3) d.focus.push(v);
+    return renderStart();
+  }
+  if (b.dataset.team) {
+    const i = d.team.indexOf(b.dataset.team);
+    if (i >= 0) d.team.splice(i, 1); else d.team.push(b.dataset.team);
+    d.team.sort((x, y) => WEEK.indexOf(x) - WEEK.indexOf(y));
+    return renderStart();
+  }
+  if (b.dataset.gym !== undefined) { d.gym = +b.dataset.gym; return renderStart(); }
+  if (b.dataset.solo !== undefined) { d.solo = +b.dataset.solo; return renderStart(); }
+  if (b.dataset.step) {
+    state.step += b.dataset.step === "next" ? 1 : -1;
+    if (state.step === 4 && d.gym === null) d.gym = recGym(d).n;
+    if (state.step === 5 && d.solo === null) d.solo = recSolo(d, d.team.length).n;
+    return renderStart();
+  }
+  if (b.dataset.build) {
+    state.profile = { age: d.age, level: d.level, focus: [...d.focus], team: [...d.team], gym: d.gym, solo: d.solo };
+    const built = buildPlan(state.profile);
+    state.plan = built.plan; state.gen = built.gen; state.done = {};
+    state.activeIdx = state.plan.findIndex(x => x.kind !== "team"); state.active = state.plan[state.activeIdx].id;
+    state.open = getW(state.active).drills[0].id;
+    save(); renderToday(); renderLibrary(); return showStart(false);
+  }
+  if (b.dataset.edit) {
+    const pr = state.profile;
+    state.draft = { age: pr.age, level: pr.level, focus: [...pr.focus], team: [...(pr.team || [])], gym: pr.gym ?? null, solo: pr.solo ?? null };
+    state.step = 0; return showStart(true);
+  }
+  if (b.dataset.planpick) {
+    const i = +b.dataset.planpick; state.activeIdx = i; state.active = state.plan[i].id;
+    state.open = getW(state.active).drills[0].id; save(); renderLibrary(); return renderToday();
+  }
+  if (b.dataset.open) { state.open = state.open === b.dataset.open ? null : b.dataset.open; return renderToday(); }
+  if (b.dataset.set) {
+    const id = b.dataset.set, i = +b.dataset.i, cur = state.done[id] || 0;
+    state.done[id] = i < cur ? i : i + 1; save(); return renderToday();
+  }
+  if (b.dataset.filter) { state.filter = b.dataset.filter; state.sub = "All"; save(); return renderLibrary(); }
+  if (b.dataset.sub) { state.sub = b.dataset.sub; return renderLibrary(); }
+  if (b.dataset.lvl) { state.lvl = b.dataset.lvl; return renderLibrary(); }
+  if (b.dataset.mode) { state.mode = b.dataset.mode; state.libOpen = null; return renderLibrary(); }
+  if (b.dataset.libopen) { state.libOpen = state.libOpen === b.dataset.libopen ? null : b.dataset.libopen; return renderLibList(); }
+  if (b.dataset.pick) {
+    state.active = b.dataset.pick; state.activeIdx = state.plan.findIndex(p => p.id === state.active); state.open = getW(state.active).drills[0].id;
+    save(); renderToday(); renderLibrary(); return setTab("today");
+  }
+  if (b.dataset.go) return setTab(b.dataset.go);
+});
+
+document.addEventListener("input", (e) => {
+  if (e.target.id === "libSearch") { state.q = e.target.value; renderLibList(); }
+});
+
+state.activeIdx = state.plan.findIndex(p => p.id === state.active);
+function renderChrome() {
+  document.documentElement.lang = state.lang;
+  $("subTxt").textContent = L("Solo trainer · prototype", "Solo-Trainer · Prototyp");
+  $("streakTxt").textContent = L("day streak", "Tage in Folge");
+  $("langBtn").textContent = L("DE", "EN");
+  $("langBtn").setAttribute("aria-label", L("Auf Deutsch umstellen", "Switch to English"));
+  $("tab-today").textContent = L("Today", "Heute");
+  $("tab-library").textContent = L("Library", "Bibliothek");
+  $("tab-progress").textContent = L("Progress", "Fortschritt");
+}
+function renderAll() {
+  renderChrome(); renderToday(); renderLibrary(); renderProgress();
+  if (!$("view-start").hidden) renderStart();
+}
+renderAll();
+if (!state.profile) showStart(true);
+</script>
+
+</body>
+</html>
